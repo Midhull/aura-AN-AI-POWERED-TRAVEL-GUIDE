@@ -1,0 +1,37 @@
+{
+  "model_name": "Activity Recommendation Model",
+  "runs": [
+    {
+      "version": "1.0.0",
+      "trained_at": "2026-06-22T15:30:47.772206Z",
+      "selected_model": "LightGBM",
+      "features": [
+        "traveler_type_encoded",
+        "age_group_encoded",
+        "budget_tier_encoded",
+        "travel_style_encoded",
+        "food_preference_encoded",
+        "mobility_level_encoded",
+        "dest_encoded",
+        "season_encoded",
+        "trip_duration",
+        "activity_id_encoded",
+        "activity_cost",
+        "style_match",
+        "interests_match_count"
+      ],
+      "hyperparameters": {
+        "n_estimators": 40,
+        "max_depth": 3,
+        "learning_rate": 0.1,
+        "random_state": 42
+      },
+      "evaluation_metrics": {
+        "precision_at_k": 0.835,
+        "recall_at_k": 0.772,
+        "ndcg_at_k": 0.849,
+        "map": 0.825
+      }
+    }
+  ]
+}

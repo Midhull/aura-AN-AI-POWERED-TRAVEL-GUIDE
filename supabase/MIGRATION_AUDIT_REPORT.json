@@ -1,0 +1,263 @@
+{
+  "auditedAt": "2026-06-23T06:32:15.223Z",
+  "projectUrl": "https://ywfarmatbvuhxbyqymax.supabase.co",
+  "localMigrationFiles": [
+    "20260622_init.sql",
+    "20260622_destination_intel.sql",
+    "20260622_budget_history.sql",
+    "20260622_expenses.sql",
+    "20260622_feedback.sql",
+    "20260622_pgvector_memory.sql",
+    "20260622_data_platform.sql",
+    "20260622_ml_dataset_infrastructure.sql",
+    "20260622_training_dataset.sql",
+    "20260622_indexes.sql",
+    "20260622_ml_data_collection_infra.sql",
+    "20260622_ml_synthetic_data_source.sql",
+    "20260622_ml_budget_shadow_analytics.sql",
+    "20260622_ml_destination_shadow_analytics.sql",
+    "20260622_ml_activity_recommendation.sql",
+    "20260622_ml_performance_monitoring.sql"
+  ],
+  "tables": {
+    "users": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "traveler_profiles": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "trips": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "budgets": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "itineraries": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "learning_data": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        }
+      },
+      "countError": null
+    },
+    "ml_trip_dataset": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"ml_trip_dataset\""
+        }
+      },
+      "countError": null
+    },
+    "ml_budget_dataset": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"ml_budget_dataset\""
+        }
+      },
+      "countError": null
+    },
+    "ml_activity_dataset": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"ml_activity_dataset\""
+        }
+      },
+      "countError": null
+    },
+    "ml_budget_shadow_analytics": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"ml_budget_shadow_analytics\""
+        }
+      },
+      "countError": null
+    },
+    "ml_destination_shadow_analytics": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"ml_destination_shadow_analytics\""
+        }
+      },
+      "countError": null
+    },
+    "activity_model_predictions": {
+      "status": "EXISTS",
+      "count": 0,
+      "columns": {
+        "ok": true,
+        "missing": []
+      },
+      "rls": {
+        "select": {
+          "allowed": true,
+          "error": null
+        },
+        "insert": {
+          "allowed": false,
+          "inserted": false,
+          "error": "new row violates row-level security policy for table \"activity_model_predictions\""
+        }
+      },
+      "countError": null
+    }
+  },
+  "summary": {
+    "exists": 12,
+    "missing": 0,
+    "outOfSync": 0,
+    "countOk": 12
+  },
+  "indexes": {
+    "note": "Requires direct SQL — see generated audit SQL file",
+    "expected": [
+      "trips_user_id_idx",
+      "traveler_profiles_user_id_idx",
+      "budgets_trip_id_idx",
+      "budgets_user_id_idx",
+      "budget_breakdowns_budget_id_idx",
+      "budget_breakdowns_user_id_idx",
+      "itineraries_trip_id_idx",
+      "itineraries_user_id_idx",
+      "chat_sessions_user_id_idx",
+      "trip_ratings_trip_id_idx",
+      "learning_data_user_id_idx",
+      "expenses_trip_id_idx",
+      "expenses_user_id_idx",
+      "item_feedback_item_id_type_idx",
+      "travel_memories_embedding_hnsw_idx"
+    ]
+  },
+  "migrations": {
+    "note": "Requires supabase_migrations.schema_migrations query via service role / psql"
+  }
+}

@@ -1,0 +1,7 @@
+# Aria — The AI Travel Guide
+
+> A cinematic AI-powered travel companion. Discover destinations, design itineraries, and travel like never before.
+
+## Pages
+- [Welcome experience](/): Cinematic scroll journey through destinations, ending in a call to action.
+- [Command Center](/dashboard): AI travel dashboard with planner, globe, and smart recommendations.

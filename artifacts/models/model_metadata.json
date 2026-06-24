@@ -1,0 +1,71 @@
+{
+  "model_name": "XGBoost Budget Predictor",
+  "runs": [
+    {
+      "version": "1.0.0",
+      "trained_at": "2026-06-22T15:10:03.746067Z",
+      "features": [
+        "dest_encoded",
+        "duration",
+        "travelers",
+        "style_encoded",
+        "season_encoded"
+      ],
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 4,
+        "learning_rate": 0.08,
+        "random_state": 42
+      },
+      "evaluation_metrics": {
+        "mean_absolute_error": 54.32,
+        "root_mean_squared_error": 78.45,
+        "r2_score": 0.8924
+      }
+    },
+    {
+      "version": "1.0.1",
+      "trained_at": "2026-06-22T15:12:05.024155Z",
+      "features": [
+        "dest_encoded",
+        "duration",
+        "travelers",
+        "style_encoded",
+        "season_encoded"
+      ],
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 4,
+        "learning_rate": 0.08,
+        "random_state": 42
+      },
+      "evaluation_metrics": {
+        "mean_absolute_error": 54.32,
+        "root_mean_squared_error": 78.45,
+        "r2_score": 0.8924
+      }
+    },
+    {
+      "version": "1.0.2",
+      "trained_at": "2026-06-22T15:17:03.782615Z",
+      "features": [
+        "dest_encoded",
+        "duration",
+        "travelers",
+        "style_encoded",
+        "season_encoded"
+      ],
+      "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 4,
+        "learning_rate": 0.08,
+        "random_state": 42
+      },
+      "evaluation_metrics": {
+        "mean_absolute_error": 54.32,
+        "root_mean_squared_error": 78.45,
+        "r2_score": 0.8924
+      }
+    }
+  ]
+}

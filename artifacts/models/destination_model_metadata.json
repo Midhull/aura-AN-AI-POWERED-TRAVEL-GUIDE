@@ -1,0 +1,31 @@
+{
+  "model_name": "LightGBM Destination Ranker",
+  "runs": [
+    {
+      "version": "1.0.0",
+      "trained_at": "2026-06-22T15:22:00.752478Z",
+      "features": [
+        "max_daily_budget",
+        "average_budget",
+        "budget_delta",
+        "primary_style_idx",
+        "style_match",
+        "food_score",
+        "family_friendly_score",
+        "travel_difficulty",
+        "interests_match_count"
+      ],
+      "hyperparameters": {
+        "n_estimators": 50,
+        "max_depth": 3,
+        "learning_rate": 0.1,
+        "random_state": 42
+      },
+      "evaluation_metrics": {
+        "mean_absolute_error": 3.42,
+        "root_mean_squared_error": 4.85,
+        "r2_score": 0.9124
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "model_type": "XGBRegressor",
+  "version": "1.0.2",
+  "base_score": 250.0,
+  "features": [
+    "dest_encoded",
+    "duration",
+    "travelers",
+    "style_encoded",
+    "season_encoded"
+  ],
+  "trees": [
+    {
+      "nodeid": 0,
+      "depth": 0,
+      "split": "style_encoded",
+      "split_condition": 3.5,
+      "yes": 1,
+      "no": 2,
+      "missing": 1,
+      "children": [
+        {
+          "nodeid": 1,
+          "leaf": -50.0
+        },
+        {
+          "nodeid": 2,
+          "leaf": 150.0
+        }
+      ]
+    },
+    {
+      "nodeid": 0,
+      "depth": 0,
+      "split": "duration",
+      "split_condition": 6.5,
+      "yes": 1,
+      "no": 2,
+      "missing": 1,
+      "children": [
+        {
+          "nodeid": 1,
+          "leaf": -20.0
+        },
+        {
+          "nodeid": 2,
+          "leaf": 60.0
+        }
+      ]
+    }
+  ]
+}

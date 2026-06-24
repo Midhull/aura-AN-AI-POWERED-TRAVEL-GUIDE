@@ -1,0 +1,66 @@
+{
+  "model_type": "LightGBMRegressor",
+  "version": "1.0.0",
+  "base_score": 65.0,
+  "features": [
+    "max_daily_budget",
+    "average_budget",
+    "budget_delta",
+    "primary_style_idx",
+    "style_match",
+    "food_score",
+    "family_friendly_score",
+    "travel_difficulty",
+    "interests_match_count"
+  ],
+  "trees": [
+    {
+      "split": "budget_delta",
+      "threshold": 0.0,
+      "left": {
+        "split": "style_match",
+        "threshold": 0.5,
+        "left": {
+          "leaf": -10.0
+        },
+        "right": {
+          "leaf": -2.0
+        }
+      },
+      "right": {
+        "split": "style_match",
+        "threshold": 0.5,
+        "left": {
+          "leaf": 5.0
+        },
+        "right": {
+          "leaf": 15.0
+        }
+      }
+    },
+    {
+      "split": "food_score",
+      "threshold": 7.5,
+      "left": {
+        "split": "family_friendly_score",
+        "threshold": 7.0,
+        "left": {
+          "leaf": -5.0
+        },
+        "right": {
+          "leaf": -1.0
+        }
+      },
+      "right": {
+        "split": "interests_match_count",
+        "threshold": 1.5,
+        "left": {
+          "leaf": 2.0
+        },
+        "right": {
+          "leaf": 8.0
+        }
+      }
+    }
+  ]
+}

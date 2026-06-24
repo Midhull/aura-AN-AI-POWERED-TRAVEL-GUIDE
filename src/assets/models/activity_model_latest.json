@@ -1,0 +1,63 @@
+{
+  "model_type": "LightGBM",
+  "version": "1.0.0",
+  "base_score": 0.0,
+  "features": [
+    "traveler_type_encoded",
+    "age_group_encoded",
+    "budget_tier_encoded",
+    "travel_style_encoded",
+    "food_preference_encoded",
+    "mobility_level_encoded",
+    "dest_encoded",
+    "season_encoded",
+    "trip_duration",
+    "activity_id_encoded",
+    "activity_cost",
+    "style_match",
+    "interests_match_count"
+  ],
+  "trees": [
+    {
+      "split": "style_match",
+      "threshold": 0.5,
+      "left": {
+        "split": "interests_match_count",
+        "threshold": 0.5,
+        "left": {
+          "leaf": -1.5
+        },
+        "right": {
+          "leaf": 0.2
+        }
+      },
+      "right": {
+        "split": "activity_cost",
+        "threshold": 100.0,
+        "left": {
+          "leaf": 2.5
+        },
+        "right": {
+          "leaf": 1.2
+        }
+      }
+    },
+    {
+      "split": "mobility_level_encoded",
+      "threshold": 1.5,
+      "left": {
+        "split": "activity_id_encoded",
+        "threshold": 0.5,
+        "left": {
+          "leaf": -2.0
+        },
+        "right": {
+          "leaf": 0.1
+        }
+      },
+      "right": {
+        "leaf": 1.5
+      }
+    }
+  ]
+}
