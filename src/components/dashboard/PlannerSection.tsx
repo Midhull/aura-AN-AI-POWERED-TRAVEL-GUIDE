@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Sparkles, Calendar, Users, DollarSign, Activity, AlertTriangle, CheckCircle, RefreshCw, MapPin, Clock, ArrowRight, Shield, CloudSun, Star, Loader2 } from "lucide-react";
 import { PlaceSearchAutocomplete } from "../google/PlaceSearchAutocomplete";
 import { ActivityPhoto } from "../google/ActivityPhoto";
+import { ItineraryMap } from "../google/ItineraryMap";
 
 interface PlannerSectionProps {
   initialState?: { destination: string; prompt: string } | null;
@@ -69,7 +70,7 @@ export function PlannerSection({ initialState, clearInitialState }: PlannerSecti
       await feedbackService.submitFeedback({
         userId: user?.uid || "00000000-0000-0000-0000-000000000000",
         tripId: activeTrip.id,
-        itemType: "trip",
+        itemType: "itinerary",
         itemId: activeTrip.id || "",
         rating,
         review: comment,
@@ -226,13 +227,19 @@ export function PlannerSection({ initialState, clearInitialState }: PlannerSecti
         {/* Visualizer content based on active tab */}
         <AnimatePresence mode="wait">
           {itineraryTab === "schedule" && (
-  <div className="space-y-6">
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-    >
-      {activeItinerary.days.map((day: any) => (
+            <div className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                {/* Visual Route Map */}
+                <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-1">
+                  <ItineraryMap itineraryDays={activeItinerary.days} />
+                </div>
+
+                {activeItinerary.days.map((day: any) => (
         <div key={day.dayNumber} className="space-y-4">
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold font-mono px-3 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">Day {day.dayNumber}</span>

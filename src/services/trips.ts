@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createSupabaseServerClient } from "./supabase/server";
+import type { TravelOSInput } from "./travelOS";
 
 export const generateTripPlan = createServerFn({ method: "POST" })
   .validator(
@@ -97,7 +98,7 @@ export const orchestrateTripPlan = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { travelOS } = await import("./travelOS");
-    const result = await travelOS.runOrchestrator(data);
+    const result = await travelOS.runOrchestrator(data as TravelOSInput);
     try {
       // Force complete DTO serialization to prevent any non-serializable fields
       return JSON.parse(JSON.stringify(result));

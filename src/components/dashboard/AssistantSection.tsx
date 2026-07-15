@@ -25,44 +25,48 @@ export function AssistantSection() {
     }
   ]);
   const [input, setInput] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming) return;
 
+    const userText = input.trim();
     const userMessage: Message = {
       id: crypto.randomUUID(),
       sender: "user",
-      text: input
+      text: userText
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    const userText = input.trim();
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput("");
 
-    // Simulate thinking delay
-    setTimeout(() => {
-      // Analyze text patterns for budget consultation
-      // E.g., "$3000 for 7 days in Switzerland", "budget of 2000 for 10 days in Japan"
-      const budgetMatch = userText.match(/\$?(\d+[\d,]*)/);
-      const daysMatch = userText.match(/(\d+)\s*-?\s*day/i);
-      
-      let dest = "Japan";
-      if (userText.toLowerCase().includes("bali")) dest = "Bali";
-      else if (userText.toLowerCase().includes("swiss") || userText.toLowerCase().includes("alps")) dest = "Switzerland";
-      else if (userText.toLowerCase().includes("greece") || userText.toLowerCase().includes("santorini")) dest = "Greece";
+    // Analyze text patterns for budget consultation
+    const budgetMatch = userText.match(/\$?(\d+[\d,]*)/);
+    const daysMatch = userText.match(/(\d+)\s*-?\s*day/i);
+    const hasTravelKeyword = /trip|travel|visit|stay|vacation|holiday|tour|go\s+to|fly|spend|hotel|flight/i.test(userText) ||
+                             /japan|bali|swiss|greece|santorini|alps|switzerland/i.test(userText);
 
-      if (budgetMatch && daysMatch) {
+    if (budgetMatch && daysMatch && hasTravelKeyword) {
+      setIsStreaming(true);
+      // Simulate thinking delay
+      setTimeout(() => {
         // Parse numbers
         const budgetUSD = parseInt(budgetMatch[1].replace(/,/g, ""));
         const durationDays = parseInt(daysMatch[1]);
         
         // Convert USD budget to INR for travelConsultantAgent
         const budgetINR = budgetUSD * 83;
+
+        let dest = "Japan";
+        if (userText.toLowerCase().includes("bali")) dest = "Bali";
+        else if (userText.toLowerCase().includes("swiss") || userText.toLowerCase().includes("alps")) dest = "Switzerland";
+        else if (userText.toLowerCase().includes("greece") || userText.toLowerCase().includes("santorini")) dest = "Greece";
 
         // Run feasibility engine
         const consultation = travelConsultantAgent.consult({
@@ -92,26 +96,111 @@ export function AssistantSection() {
           }
         };
         setMessages((prev) => [...prev, ariaResponse]);
-      } else {
-        // Fallback to conversational chat responder
-        let responseText = "That sounds like a fascinating journey! To help you audit the feasibility of this trip, please specify your budget amount and the duration in days (for example: '$2500 for a 5-day stay').";
-        
-        if (userText.toLowerCase().includes("hello") || userText.toLowerCase().includes("hi")) {
-          responseText = "Hello explorer! How can I assist you with your travel planning today?";
-        } else if (userText.toLowerCase().includes("packing") || userText.toLowerCase().includes("pack")) {
-          responseText = "For most destinations, I recommend a capsule wardrobe: layers for varying climates, comfortable walking shoes, universal power adapters, and copies of essential documents saved securely.";
-        } else if (userText.toLowerCase().includes("weather") || userText.toLowerCase().includes("season")) {
-          responseText = "Kyoto is beautiful in Spring (April) and Autumn (November). Bali's dry season runs from April to October. Swiss Alps skiing peak is January through March.";
+        setIsStreaming(false);
+      }, 800);
+    } else {
+      // Fallback to conversational chat responder via streaming proxy
+      setIsStreaming(true);
+
+      const assistantMessageId = crypto.randomUUID();
+      const ariaResponse: Message = {
+        id: assistantMessageId,
+        sender: "aria",
+        text: "",
+      };
+      
+      setMessages((prev) => [...prev, ariaResponse]);
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messages: newMessages }),
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP error ${response.status}`);
         }
 
-        const ariaResponse: Message = {
-          id: crypto.randomUUID(),
-          sender: "aria",
-          text: responseText
-        };
-        setMessages((prev) => [...prev, ariaResponse]);
+        if (!response.body) {
+          throw new Error("No response body returned from server");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            if (trimmed.startsWith("data: ")) {
+              const dataStr = trimmed.substring(6).trim();
+              if (dataStr === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(dataStr);
+                const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                if (textChunk) {
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantMessageId
+                        ? { ...msg, text: msg.text + textChunk }
+                        : msg
+                    )
+                  );
+                }
+              } catch (e) {
+                console.error("Failed to parse stream chunk:", dataStr, e);
+              }
+            }
+          }
+        }
+
+        // Process final leftover buffer line if any
+        if (buffer.trim().startsWith("data: ")) {
+          const dataStr = buffer.trim().substring(6).trim();
+          try {
+            const parsed = JSON.parse(dataStr);
+            const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (textChunk) {
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, text: msg.text + textChunk }
+                    : msg
+                )
+              );
+            }
+          } catch (e) {
+            // Ignored
+          }
+        }
+      } catch (error: any) {
+        console.error("Streaming error:", error);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? {
+                  ...msg,
+                  text: `Sorry, I encountered an error: ${error.message || "Please check your network connection and try again."}`
+                }
+              : msg
+          )
+        );
+      } finally {
+        setIsStreaming(false);
       }
-    }, 1000);
+    }
   };
 
   return (
@@ -124,9 +213,9 @@ export function AssistantSection() {
         <div>
           <h3 className="text-xs font-semibold text-white font-mono flex items-center gap-1.5">
             Aria Concierge Assistant
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald animate-pulse" />
+            <span className={`flex h-1.5 w-1.5 rounded-full ${isStreaming ? "bg-gold animate-bounce" : "bg-emerald animate-pulse"}`} />
           </h3>
-          <p className="text-[10px] text-white/40">Inference Consultation Agent active</p>
+          <p className="text-[10px] text-white/40">{isStreaming ? "Streaming response..." : "Inference Consultation Agent active"}</p>
         </div>
       </div>
 
@@ -148,7 +237,7 @@ export function AssistantSection() {
                 <div
                   className={`p-4 rounded-2xl text-xs leading-relaxed ${
                     isAria
-                      ? "bg-white/5 border border-white/5 text-white/80"
+                      ? "bg-white/5 border border-white/5 text-white/80 whitespace-pre-wrap"
                       : "bg-gold text-[oklch(0.13_0.025_250)] font-medium"
                   }`}
                 >
@@ -208,15 +297,17 @@ export function AssistantSection() {
       {/* Input box */}
       <div className="mt-4 pt-4 border-t border-white/5 flex gap-2">
         <input
-          placeholder="Ask Aria about travel planning or budget audits..."
+          placeholder={isStreaming ? "Aria is responding..." : "Ask Aria about travel planning or budget audits..."}
           value={input}
+          disabled={isStreaming}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 px-4 text-xs text-white placeholder:text-white/35 focus:outline-none"
+          className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 px-4 text-xs text-white placeholder:text-white/35 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
           onClick={handleSend}
-          className="p-2.5 rounded-xl text-[oklch(0.13_0.025_250)] bg-gold hover:opacity-90 transition-all flex items-center justify-center shrink-0"
+          disabled={isStreaming || !input.trim()}
+          className="p-2.5 rounded-xl text-[oklch(0.13_0.025_250)] bg-gold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0"
         >
           <Send className="h-4 w-4" />
         </button>

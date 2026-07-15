@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import { useJsApiLoader } from '@react-google-maps/api';
-
 interface ActivityPhotoProps {
   /** Name or address of the location to fetch a photo for */
   locationName: string;
@@ -9,52 +7,37 @@ interface ActivityPhotoProps {
   maxWidth?: number;
 }
 
-const libraries: ("places")[] = ["places"];
-
 /**
- * Retrieves a photo URL from the Google Places Photo API.
- * It first uses the PlacesService to find a placeId for the given location name,
- * then requests a photo reference and builds the final image URL.
+ * Retrieves a beautiful travel photo from Unsplash deterministically based on locationName.
+ * Bypasses Google Places API key requirements.
  */
 export const ActivityPhoto: React.FC<ActivityPhotoProps> = ({ locationName, maxWidth = 300 }) => {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
-    libraries,
-  });
-
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!locationName || !isLoaded || !window.google || !window.google.maps) return;
-    // Create a temporary map for the service (required by the API)
-    const map = new google.maps.Map(document.createElement('div'));
-    const service = new google.maps.places.PlacesService(map);
-    service.findPlaceFromQuery(
-      {
-        query: locationName,
-        fields: ['photo', 'place_id'],
-      },
-      (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-          const place = results[0];
-          if (place.photos && place.photos.length > 0) {
-            const url = place.photos[0].getUrl({ maxWidth });
-            setPhotoUrl(url);
-          } else {
-            // Fallback to static map image if no photos
-            const staticUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(
-              locationName
-            )}&zoom=15&size=${maxWidth}x200&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`;
-            setPhotoUrl(staticUrl);
-          }
-        }
-      }
-    );
-  }, [locationName, maxWidth, isLoaded]);
+    if (!locationName) return;
+
+    const travelPhotos = [
+      "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1473116763269-255ea7b0b5f1?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80"
+    ];
+
+    let hash = 0;
+    for (let i = 0; i < locationName.length; i++) {
+      hash += locationName.charCodeAt(i);
+    }
+    const index = hash % travelPhotos.length;
+    setPhotoUrl(travelPhotos[index]);
+  }, [locationName]);
 
   if (!photoUrl) {
-    return <div className="h-48 w-full bg-gray-800 animate-pulse rounded" />;
+    return <div className="h-48 w-full bg-white/5 animate-pulse rounded" />;
   }
 
   return (

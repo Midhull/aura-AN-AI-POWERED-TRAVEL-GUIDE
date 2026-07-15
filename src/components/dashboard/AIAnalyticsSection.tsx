@@ -43,7 +43,6 @@ interface UsageLog {
 export function AIAnalyticsSection() {
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<UsageLog[]>([]);
-  const [useDemoData, setUseDemoData] = useState(false);
 
   // Aggregated Stats
   const [stats, setStats] = useState({
@@ -68,18 +67,28 @@ export function AIAnalyticsSection() {
       }
 
       if (!data || data.length === 0) {
-        // Fall back to demo data if DB is empty
-        setUseDemoData(true);
-        loadDemoData();
+        setLogs([]);
+        setStats({
+          totalRequests: 0,
+          totalTokens: 0,
+          totalCost: 0,
+          avgLatency: 0,
+          successRate: 0,
+        });
       } else {
-        setUseDemoData(false);
         setLogs(data);
         calculateStats(data);
       }
     } catch (err: any) {
-      console.warn("Failed to fetch live AI logs, falling back to demo data:", err.message);
-      setUseDemoData(true);
-      loadDemoData();
+      console.warn("Failed to fetch live AI logs:", err.message);
+      setLogs([]);
+      setStats({
+        totalRequests: 0,
+        totalTokens: 0,
+        totalCost: 0,
+        avgLatency: 0,
+        successRate: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -101,39 +110,6 @@ export function AIAnalyticsSection() {
       avgLatency: Math.round(avgLatency),
       successRate: Math.round(successRate),
     });
-  };
-
-  const loadDemoData = () => {
-    // Generate high-fidelity realistic fallback analytics logs for display
-    const demoLogs: UsageLog[] = Array.from({ length: 15 }).map((_, i) => {
-      const isGemini = Math.random() > 0.3;
-      const isSuccess = Math.random() > 0.08;
-      const input = Math.floor(Math.random() * 500) + 300;
-      const output = Math.floor(Math.random() * 800) + 400;
-      const cost = isGemini 
-        ? (input * 0.000075 / 1000) + (output * 0.0003 / 1000)
-        : (input * 0.002 / 1000) + (output * 0.01 / 1000);
-
-      const date = new Date();
-      date.setHours(date.getHours() - i * 2);
-
-      return {
-        id: `demo-${i}`,
-        endpoint: "generateItinerary",
-        provider: isGemini ? "gemini" : "grok",
-        model_name: isGemini ? "gemini-2.5-flash" : "grok-2-1218",
-        input_tokens: input,
-        output_tokens: output,
-        estimated_cost: cost,
-        latency_ms: isGemini ? Math.floor(Math.random() * 1500) + 800 : Math.floor(Math.random() * 3000) + 1500,
-        status: isSuccess ? "success" : "failed",
-        error_message: isSuccess ? null : "Model overloaded or rate limit exceeded",
-        created_at: date.toISOString(),
-      };
-    });
-
-    setLogs(demoLogs);
-    calculateStats(demoLogs);
   };
 
   useEffect(() => {
@@ -170,12 +146,6 @@ export function AIAnalyticsSection() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {useDemoData && (
-            <span className="text-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider flex items-center gap-1">
-              <Zap className="h-3 w-3" />
-              Demo Data Mode
-            </span>
-          )}
           <button
             onClick={() => {
               fetchAnalytics();
@@ -190,205 +160,217 @@ export function AIAnalyticsSection() {
         </div>
       </div>
 
-      {/* Grid Stats */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
-          <div className="flex items-center justify-between text-white/40">
-            <span className="text-xs uppercase tracking-wider font-mono">Requests</span>
-            <Activity className="h-4 w-4" />
-          </div>
-          <div className="text-2xl font-semibold font-mono">{stats.totalRequests}</div>
-          <div className="text-[9px] text-white/30">Last 100 invocations</div>
+      {logs.length === 0 ? (
+        <div className="rounded-3xl glass p-12 border border-white/5 text-center flex flex-col items-center justify-center space-y-4">
+          <Activity className="h-10 w-10 text-white/20 animate-pulse" />
+          <h3 className="text-white/60 font-medium text-lg">No analytics data available yet.</h3>
+          <p className="text-xs text-white/40 max-w-sm">
+            Generate some journeys or make AI planner queries to populate live logs in the Supabase instance.
+          </p>
         </div>
+      ) : (
+        <>
+          {/* Grid Stats */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+            <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
+              <div className="flex items-center justify-between text-white/40">
+                <span className="text-xs uppercase tracking-wider font-mono">Requests</span>
+                <Activity className="h-4 w-4" />
+              </div>
+              <div className="text-2xl font-semibold font-mono">{stats.totalRequests}</div>
+              <div className="text-[9px] text-white/30">Last 100 invocations</div>
+            </div>
 
-        <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
-          <div className="flex items-center justify-between text-white/40">
-            <span className="text-xs uppercase tracking-wider font-mono">Total Tokens</span>
-            <Cpu className="h-4 w-4" />
-          </div>
-          <div className="text-2xl font-semibold font-mono">
-            {stats.totalTokens >= 1000000 
-              ? `${(stats.totalTokens / 1000000).toFixed(1)}M` 
-              : stats.totalTokens.toLocaleString()}
-          </div>
-          <div className="text-[9px] text-white/30">Avg {(stats.totalTokens / (stats.totalRequests || 1)).toFixed(0)} / call</div>
-        </div>
+            <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
+              <div className="flex items-center justify-between text-white/40">
+                <span className="text-xs uppercase tracking-wider font-mono">Total Tokens</span>
+                <Cpu className="h-4 w-4" />
+              </div>
+              <div className="text-2xl font-semibold font-mono">
+                {stats.totalTokens >= 1000000 
+                  ? `${(stats.totalTokens / 1000000).toFixed(1)}M` 
+                  : stats.totalTokens.toLocaleString()}
+              </div>
+              <div className="text-[9px] text-white/30">Avg {(stats.totalTokens / (stats.totalRequests || 1)).toFixed(0)} / call</div>
+            </div>
 
-        <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
-          <div className="flex items-center justify-between text-white/40">
-            <span className="text-xs uppercase tracking-wider font-mono">Est. Cost</span>
-            <Coins className="h-4 w-4 text-gold" />
-          </div>
-          <div className="text-2xl font-semibold font-mono text-gold">
-            ${stats.totalCost.toFixed(4)}
-          </div>
-          <div className="text-[9px] text-white/30">USD Pricing metrics</div>
-        </div>
+            <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
+              <div className="flex items-center justify-between text-white/40">
+                <span className="text-xs uppercase tracking-wider font-mono">Est. Cost</span>
+                <Coins className="h-4 w-4 text-gold" />
+              </div>
+              <div className="text-2xl font-semibold font-mono text-gold">
+                ${stats.totalCost.toFixed(4)}
+              </div>
+              <div className="text-[9px] text-white/30">USD Pricing metrics</div>
+            </div>
 
-        <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
-          <div className="flex items-center justify-between text-white/40">
-            <span className="text-xs uppercase tracking-wider font-mono">Avg Latency</span>
-            <Clock className="h-4 w-4" />
-          </div>
-          <div className="text-2xl font-semibold font-mono">
-            {(stats.avgLatency / 1000).toFixed(2)}s
-          </div>
-          <div className="text-[9px] text-white/30">Network round-trip</div>
-        </div>
+            <div className="rounded-2xl glass p-5 space-y-2 border border-white/5">
+              <div className="flex items-center justify-between text-white/40">
+                <span className="text-xs uppercase tracking-wider font-mono">Avg Latency</span>
+                <Clock className="h-4 w-4" />
+              </div>
+              <div className="text-2xl font-semibold font-mono">
+                {(stats.avgLatency / 1000).toFixed(2)}s
+              </div>
+              <div className="text-[9px] text-white/30">Network round-trip</div>
+            </div>
 
-        <div className="rounded-2xl glass p-5 space-y-2 border border-white/5 col-span-2 md:col-span-1">
-          <div className="flex items-center justify-between text-white/40">
-            <span className="text-xs uppercase tracking-wider font-mono">Reliability</span>
-            <CheckCircle className="h-4 w-4 text-emerald" />
-          </div>
-          <div className={`text-2xl font-semibold font-mono ${stats.successRate >= 90 ? 'text-emerald' : 'text-amber'}`}>
-            {stats.successRate}%
-          </div>
-          <div className="text-[9px] text-white/30">Router success rate</div>
-        </div>
-      </div>
-
-      {/* Charts Panel */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Latency Area Chart */}
-        <div className="rounded-3xl glass p-6 border border-white/5 md:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold tracking-wide flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-gold" />
-              Latency & Cost Trends
-            </h3>
-            <span className="text-[10px] text-white/40 uppercase tracking-widest font-mono">timeline</span>
+            <div className="rounded-2xl glass p-5 space-y-2 border border-white/5 col-span-2 md:col-span-1">
+              <div className="flex items-center justify-between text-white/40">
+                <span className="text-xs uppercase tracking-wider font-mono">Reliability</span>
+                <CheckCircle className="h-4 w-4 text-emerald" />
+              </div>
+              <div className={`text-2xl font-semibold font-mono ${stats.successRate >= 90 ? 'text-emerald' : 'text-amber'}`}>
+                {stats.successRate}%
+              </div>
+              <div className="text-[9px] text-white/30">Router success rate</div>
+            </div>
           </div>
 
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ca8a04" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#ca8a04" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="time" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: "rgba(20,20,25,0.9)", 
-                    borderColor: "rgba(255,255,255,0.1)",
-                    borderRadius: "12px",
-                    color: "#fff",
-                    fontSize: "12px"
-                  }} 
-                />
-                <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="#ca8a04" fillOpacity={1} fill="url(#colorLatency)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+          {/* Charts Panel */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Latency Area Chart */}
+            <div className="rounded-3xl glass p-6 border border-white/5 md:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold tracking-wide flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-gold" />
+                  Latency & Cost Trends
+                </h3>
+                <span className="text-[10px] text-white/40 uppercase tracking-widest font-mono">timeline</span>
+              </div>
 
-        {/* Cost Distribution Bar Chart */}
-        <div className="rounded-3xl glass p-6 border border-white/5 space-y-4 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold tracking-wide flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-gold" />
-              Provider Share
-            </h3>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ca8a04" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#ca8a04" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="time" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "rgba(20,20,25,0.9)", 
+                        borderColor: "rgba(255,255,255,0.1)",
+                        borderRadius: "12px",
+                        color: "#fff",
+                        fontSize: "12px"
+                      }} 
+                    />
+                    <Area type="monotone" dataKey="latency" name="Latency (ms)" stroke="#ca8a04" fillOpacity={1} fill="url(#colorLatency)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Cost Distribution Bar Chart */}
+            <div className="rounded-3xl glass p-6 border border-white/5 space-y-4 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold tracking-wide flex items-center gap-1.5">
+                  <TrendingUp className="h-4 w-4 text-gold" />
+                  Provider Share
+                </h3>
+              </div>
+
+              <div className="h-64 w-full flex items-center justify-center">
+                {providerDistribution.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={providerDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                      <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: "rgba(20,20,25,0.9)", 
+                          borderColor: "rgba(255,255,255,0.1)",
+                          borderRadius: "12px",
+                          color: "#fff",
+                          fontSize: "12px"
+                        }} 
+                      />
+                      <Bar dataKey="value" name="Calls" fill="var(--color-gold)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="text-white/30 text-xs">No provider distribution details available.</div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="h-64 w-full flex items-center justify-center">
-            {providerDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={providerDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                  <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: "rgba(20,20,25,0.9)", 
-                      borderColor: "rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      color: "#fff",
-                      fontSize: "12px"
-                    }} 
-                  />
-                  <Bar dataKey="value" name="Calls" fill="var(--color-gold)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-white/30 text-xs">No provider distribution details available.</div>
-            )}
+          {/* Invocations Table */}
+          <div className="rounded-3xl glass border border-white/5 overflow-hidden">
+            <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+              <h3 className="text-sm font-semibold tracking-wide flex items-center gap-2">
+                <Database className="h-4 w-4 text-white/50" />
+                AI Router Call Ledger
+              </h3>
+              <span className="text-[10px] bg-white/5 px-2.5 py-1 rounded border border-white/5 text-white/50 font-mono">Last 100 rows</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-white/[0.02] border-b border-white/5 text-white/40 font-mono text-[10px] uppercase tracking-wider">
+                    <th className="px-6 py-3.5 font-normal">Timestamp</th>
+                    <th className="px-6 py-3.5 font-normal">Endpoint</th>
+                    <th className="px-6 py-3.5 font-normal">Provider/Model</th>
+                    <th className="px-6 py-3.5 font-normal text-right">Tokens</th>
+                    <th className="px-6 py-3.5 font-normal text-right">Est. Cost</th>
+                    <th className="px-6 py-3.5 font-normal text-right">Latency</th>
+                    <th className="px-6 py-3.5 font-normal text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {logs.map((log) => (
+                    <tr key={log.id} className="hover:bg-white/[0.01] transition-colors">
+                      <td className="px-6 py-4 text-white/60 font-mono">
+                        {new Date(log.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 font-mono font-semibold text-white/80">{log.endpoint}</td>
+                      <td className="px-6 py-4">
+                        <span className="font-semibold text-white">{log.provider}</span>
+                        <span className="text-white/40 block text-[10px] font-mono">{log.model_name}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-white/70">
+                        {(log.input_tokens + log.output_tokens).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-gold">
+                        ${Number(log.estimated_cost).toFixed(5)}
+                      </td>
+                      <td className="px-6 py-4 text-right font-mono text-white/70">
+                        {(log.latency_ms / 1000).toFixed(2)}s
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          log.status === "success" 
+                            ? "bg-emerald/10 border border-emerald/25 text-emerald" 
+                            : "bg-red/10 border border-red/25 text-red"
+                        }`}>
+                          {log.status === "success" ? (
+                            <>
+                              <CheckCircle className="h-2.5 w-2.5" />
+                              OK
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="h-2.5 w-2.5" />
+                              FAIL
+                            </>
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Invocations Table */}
-      <div className="rounded-3xl glass border border-white/5 overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
-          <h3 className="text-sm font-semibold tracking-wide flex items-center gap-2">
-            <Database className="h-4 w-4 text-white/50" />
-            AI Router Call Ledger
-          </h3>
-          <span className="text-[10px] bg-white/5 px-2.5 py-1 rounded border border-white/5 text-white/50 font-mono">Last 100 rows</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-white/[0.02] border-b border-white/5 text-white/40 font-mono text-[10px] uppercase tracking-wider">
-                <th className="px-6 py-3.5 font-normal">Timestamp</th>
-                <th className="px-6 py-3.5 font-normal">Endpoint</th>
-                <th className="px-6 py-3.5 font-normal">Provider/Model</th>
-                <th className="px-6 py-3.5 font-normal text-right">Tokens</th>
-                <th className="px-6 py-3.5 font-normal text-right">Est. Cost</th>
-                <th className="px-6 py-3.5 font-normal text-right">Latency</th>
-                <th className="px-6 py-3.5 font-normal text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-white/[0.01] transition-colors">
-                  <td className="px-6 py-4 text-white/60 font-mono">
-                    {new Date(log.created_at).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 font-mono font-semibold text-white/80">{log.endpoint}</td>
-                  <td className="px-6 py-4">
-                    <span className="font-semibold text-white">{log.provider}</span>
-                    <span className="text-white/40 block text-[10px] font-mono">{log.model_name}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right font-mono text-white/70">
-                    {(log.input_tokens + log.output_tokens).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 text-right font-mono text-gold">
-                    ${Number(log.estimated_cost).toFixed(5)}
-                  </td>
-                  <td className="px-6 py-4 text-right font-mono text-white/70">
-                    {(log.latency_ms / 1000).toFixed(2)}s
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                      log.status === "success" 
-                        ? "bg-emerald/10 border border-emerald/25 text-emerald" 
-                        : "bg-red/10 border border-red/25 text-red"
-                    }`}>
-                      {log.status === "success" ? (
-                        <>
-                          <CheckCircle className="h-2.5 w-2.5" />
-                          OK
-                        </>
-                      ) : (
-                        <>
-                          <AlertCircle className="h-2.5 w-2.5" />
-                          FAIL
-                        </>
-                      )}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

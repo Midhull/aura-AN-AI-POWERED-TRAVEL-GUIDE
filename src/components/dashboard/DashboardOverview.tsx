@@ -25,6 +25,45 @@ const PROMPTS = [
   "Best hidden gems in Kerala.",
 ];
 
+function extractDestination(text: string): string {
+  if (!text.trim()) return "";
+  
+  // 1. Check for explicit keywords first (known list of places in the app)
+  const lowercase = text.toLowerCase();
+  const knownPlaces = [
+    "japan", "kyoto", "tokyo", "bali", "switzerland", "alps", "greece", "santorini", 
+    "iceland", "kerala", "europe", "france", "paris", "italy", "rome", "london", 
+    "uk", "usa", "new york", "sweden", "stockholm", "germany", "berlin", "spain", 
+    "barcelona", "madrid", "egypt", "cairo"
+  ];
+  for (const place of knownPlaces) {
+    if (lowercase.includes(place)) {
+      return place.charAt(0).toUpperCase() + place.slice(1);
+    }
+  }
+
+  // 2. Regex patterns
+  const patterns = [
+    /(?:trip to|travel to|visit|explore|go to|stay in|flight to)\s+([A-Z][a-zA-Z\s]+?)(?:\s+for|\s+during|\s+with|\s+in|\s+under|\.|\!|\?|$)/i,
+    /(?:trip to|travel to|visit|explore|go to|stay in|flight to)\s+([a-zA-Z\s]+?)(?:\s+for|\s+during|\s+with|\s+in|\s+under|\.|\!|\?|$)/i,
+    /([A-Z][a-zA-Z]+)\s+trip/i,
+    /([a-zA-Z]+)\s+trip/i,
+    /honeymoon in\s+([A-Za-z]+)/i
+  ];
+
+  for (const regex of patterns) {
+    const match = text.match(regex);
+    if (match && match[1]) {
+      const dest = match[1].trim();
+      if (dest.length > 1 && dest.length < 30) {
+        return dest.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+      }
+    }
+  }
+
+  return "";
+}
+
 interface DashboardOverviewProps {
   onNavigate: (tab: string) => void;
   setPlannerState: (data: { destination: string; prompt: string }) => void;
@@ -34,6 +73,7 @@ export function DashboardOverview({ onNavigate, setPlannerState }: DashboardOver
   const { trips } = useTravelStore();
   const [showcaseIndex, setShowcaseIndex] = useState(0);
   const [prompt, setPrompt] = useState("");
+  const [detectedDest, setDetectedDest] = useState("");
 
   useEffect(() => {
     const id = setInterval(
@@ -46,15 +86,17 @@ export function DashboardOverview({ onNavigate, setPlannerState }: DashboardOver
   const current = SHOWCASE[showcaseIndex];
 
   const handleQuickPlan = (text: string) => {
-    // Attempt to extract destination name from common prompt patterns
-    let dest = "Japan";
-    if (text.toLowerCase().includes("bali")) dest = "Bali";
-    else if (text.toLowerCase().includes("europe")) dest = "Switzerland";
-    else if (text.toLowerCase().includes("kerala")) dest = "Bali";
-    else if (text.toLowerCase().includes("japan")) dest = "Kyoto";
-
+    const dest = extractDestination(text) || "Japan";
     setPlannerState({ destination: dest, prompt: text });
     onNavigate("AI Planner");
+  };
+
+  const handleTextChange = (val: string) => {
+    setPrompt(val);
+    const dest = extractDestination(val);
+    setDetectedDest(dest);
+    // Send to our aiplanner store in real time
+    setPlannerState({ destination: dest || "Japan", prompt: val });
   };
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -123,20 +165,28 @@ export function DashboardOverview({ onNavigate, setPlannerState }: DashboardOver
         <div className="group relative">
           <div
             className="absolute -inset-px rounded-3xl opacity-40 blur-xl transition-opacity group-focus-within:opacity-80"
-            style={{ background: "var(--gradient-aurora)" }}
+            style={{ background: "var(--gradient-sunrise)" }}
           />
           <div className="relative rounded-3xl glass p-5">
             <textarea
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => handleTextChange(e.target.value)}
               placeholder="Plan a 10-day Japan trip in cherry blossom season for two…"
               rows={3}
               className="w-full resize-none bg-transparent text-base text-white placeholder:text-white/45 focus:outline-none"
             />
             <div className="mt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-white/55">
-                <Sparkles className="h-3.5 w-3.5 text-gold" />
-                Powered by Aria Intelligence
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/55">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-gold" />
+                  Powered by Aria Intelligence
+                </div>
+                {detectedDest && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/10 border border-gold/25 px-2.5 py-0.5 text-[10px] font-mono text-gold font-medium animate-fade-in shadow-[0_0_10px_rgba(212,163,89,0.05)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                    Destination Detected: {detectedDest}
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => handleQuickPlan(prompt)}

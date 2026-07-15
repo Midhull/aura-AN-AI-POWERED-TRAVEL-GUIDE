@@ -170,25 +170,10 @@ export const DestinationRepository = {
         }));
       }
     } catch (e) {
-      console.warn("[DestinationIntel] Attractions table not found/accessible, using mock empty array");
+      console.warn("[DestinationIntel] Attractions table not found/accessible, using empty array");
     }
 
-    return [
-      {
-        id: `att-1-${destinationId}`,
-        destinationId,
-        name: "Historic Heritage Walk",
-        coordinates: { lat: 0, lng: 0 },
-        description: "Explore the local historical landmarks and architectural heritage.",
-      },
-      {
-        id: `att-2-${destinationId}`,
-        destinationId,
-        name: "Scenic Viewpoint & Park",
-        coordinates: { lat: 0, lng: 0 },
-        description: "Capture beautiful panorama shots and enjoy a relaxing nature walk.",
-      }
-    ];
+    return [];
   },
 
   async getRestaurants(destinationId: string): Promise<RestaurantIntel[]> {
@@ -213,19 +198,10 @@ export const DestinationRepository = {
         }));
       }
     } catch (e) {
-      console.warn("[DestinationIntel] Restaurants table not found/accessible, using mock empty array");
+      console.warn("[DestinationIntel] Restaurants table not found/accessible, using empty array");
     }
 
-    return [
-      {
-        id: `res-1-${destinationId}`,
-        destinationId,
-        name: "Authentic Culinary Counter",
-        coordinates: { lat: 0, lng: 0 },
-        foodScore: 8,
-        priceRange: "$$",
-      }
-    ];
+    return [];
   },
 };
 

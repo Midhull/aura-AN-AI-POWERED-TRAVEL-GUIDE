@@ -12,6 +12,23 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MoreFeaturesIndexRouteImport } from './routes/more-features/index'
+import { Route as MoreFeaturesWeatherRouteImport } from './routes/more-features/weather'
+import { Route as MoreFeaturesTransportRouteImport } from './routes/more-features/transport'
+import { Route as MoreFeaturesTranslatorRouteImport } from './routes/more-features/translator'
+import { Route as MoreFeaturesSettingsRouteImport } from './routes/more-features/settings'
+import { Route as MoreFeaturesSavedPlacesRouteImport } from './routes/more-features/saved-places'
+import { Route as MoreFeaturesPackingRouteImport } from './routes/more-features/packing'
+import { Route as MoreFeaturesMedicalRouteImport } from './routes/more-features/medical'
+import { Route as MoreFeaturesJournalRouteImport } from './routes/more-features/journal'
+import { Route as MoreFeaturesHotelRouteImport } from './routes/more-features/hotel'
+import { Route as MoreFeaturesHiddenGemsRouteImport } from './routes/more-features/hidden-gems'
+import { Route as MoreFeaturesFoodRouteImport } from './routes/more-features/food'
+import { Route as MoreFeaturesEmergencyRouteImport } from './routes/more-features/emergency'
+import { Route as MoreFeaturesDocumentsRouteImport } from './routes/more-features/documents'
+import { Route as MoreFeaturesCurrencyRouteImport } from './routes/more-features/currency'
+import { Route as MoreFeaturesBudgetRouteImport } from './routes/more-features/budget'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -28,35 +45,249 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoreFeaturesIndexRoute = MoreFeaturesIndexRouteImport.update({
+  id: '/more-features/',
+  path: '/more-features/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesWeatherRoute = MoreFeaturesWeatherRouteImport.update({
+  id: '/more-features/weather',
+  path: '/more-features/weather',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesTransportRoute = MoreFeaturesTransportRouteImport.update({
+  id: '/more-features/transport',
+  path: '/more-features/transport',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesTranslatorRoute = MoreFeaturesTranslatorRouteImport.update({
+  id: '/more-features/translator',
+  path: '/more-features/translator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesSettingsRoute = MoreFeaturesSettingsRouteImport.update({
+  id: '/more-features/settings',
+  path: '/more-features/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesSavedPlacesRoute = MoreFeaturesSavedPlacesRouteImport.update({
+  id: '/more-features/saved-places',
+  path: '/more-features/saved-places',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesPackingRoute = MoreFeaturesPackingRouteImport.update({
+  id: '/more-features/packing',
+  path: '/more-features/packing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesMedicalRoute = MoreFeaturesMedicalRouteImport.update({
+  id: '/more-features/medical',
+  path: '/more-features/medical',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesJournalRoute = MoreFeaturesJournalRouteImport.update({
+  id: '/more-features/journal',
+  path: '/more-features/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesHotelRoute = MoreFeaturesHotelRouteImport.update({
+  id: '/more-features/hotel',
+  path: '/more-features/hotel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesHiddenGemsRoute = MoreFeaturesHiddenGemsRouteImport.update({
+  id: '/more-features/hidden-gems',
+  path: '/more-features/hidden-gems',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesFoodRoute = MoreFeaturesFoodRouteImport.update({
+  id: '/more-features/food',
+  path: '/more-features/food',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesEmergencyRoute = MoreFeaturesEmergencyRouteImport.update({
+  id: '/more-features/emergency',
+  path: '/more-features/emergency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesDocumentsRoute = MoreFeaturesDocumentsRouteImport.update({
+  id: '/more-features/documents',
+  path: '/more-features/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesCurrencyRoute = MoreFeaturesCurrencyRouteImport.update({
+  id: '/more-features/currency',
+  path: '/more-features/currency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreFeaturesBudgetRoute = MoreFeaturesBudgetRouteImport.update({
+  id: '/more-features/budget',
+  path: '/more-features/budget',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/more-features/budget': typeof MoreFeaturesBudgetRoute
+  '/more-features/currency': typeof MoreFeaturesCurrencyRoute
+  '/more-features/documents': typeof MoreFeaturesDocumentsRoute
+  '/more-features/emergency': typeof MoreFeaturesEmergencyRoute
+  '/more-features/food': typeof MoreFeaturesFoodRoute
+  '/more-features/hidden-gems': typeof MoreFeaturesHiddenGemsRoute
+  '/more-features/hotel': typeof MoreFeaturesHotelRoute
+  '/more-features/journal': typeof MoreFeaturesJournalRoute
+  '/more-features/medical': typeof MoreFeaturesMedicalRoute
+  '/more-features/packing': typeof MoreFeaturesPackingRoute
+  '/more-features/saved-places': typeof MoreFeaturesSavedPlacesRoute
+  '/more-features/settings': typeof MoreFeaturesSettingsRoute
+  '/more-features/translator': typeof MoreFeaturesTranslatorRoute
+  '/more-features/transport': typeof MoreFeaturesTransportRoute
+  '/more-features/weather': typeof MoreFeaturesWeatherRoute
+  '/more-features/': typeof MoreFeaturesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/more-features/budget': typeof MoreFeaturesBudgetRoute
+  '/more-features/currency': typeof MoreFeaturesCurrencyRoute
+  '/more-features/documents': typeof MoreFeaturesDocumentsRoute
+  '/more-features/emergency': typeof MoreFeaturesEmergencyRoute
+  '/more-features/food': typeof MoreFeaturesFoodRoute
+  '/more-features/hidden-gems': typeof MoreFeaturesHiddenGemsRoute
+  '/more-features/hotel': typeof MoreFeaturesHotelRoute
+  '/more-features/journal': typeof MoreFeaturesJournalRoute
+  '/more-features/medical': typeof MoreFeaturesMedicalRoute
+  '/more-features/packing': typeof MoreFeaturesPackingRoute
+  '/more-features/saved-places': typeof MoreFeaturesSavedPlacesRoute
+  '/more-features/settings': typeof MoreFeaturesSettingsRoute
+  '/more-features/translator': typeof MoreFeaturesTranslatorRoute
+  '/more-features/transport': typeof MoreFeaturesTransportRoute
+  '/more-features/weather': typeof MoreFeaturesWeatherRoute
+  '/more-features': typeof MoreFeaturesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/more-features/budget': typeof MoreFeaturesBudgetRoute
+  '/more-features/currency': typeof MoreFeaturesCurrencyRoute
+  '/more-features/documents': typeof MoreFeaturesDocumentsRoute
+  '/more-features/emergency': typeof MoreFeaturesEmergencyRoute
+  '/more-features/food': typeof MoreFeaturesFoodRoute
+  '/more-features/hidden-gems': typeof MoreFeaturesHiddenGemsRoute
+  '/more-features/hotel': typeof MoreFeaturesHotelRoute
+  '/more-features/journal': typeof MoreFeaturesJournalRoute
+  '/more-features/medical': typeof MoreFeaturesMedicalRoute
+  '/more-features/packing': typeof MoreFeaturesPackingRoute
+  '/more-features/saved-places': typeof MoreFeaturesSavedPlacesRoute
+  '/more-features/settings': typeof MoreFeaturesSettingsRoute
+  '/more-features/translator': typeof MoreFeaturesTranslatorRoute
+  '/more-features/transport': typeof MoreFeaturesTransportRoute
+  '/more-features/weather': typeof MoreFeaturesWeatherRoute
+  '/more-features/': typeof MoreFeaturesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/sitemap.xml'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/sitemap.xml'
+    | '/api/chat'
+    | '/more-features/budget'
+    | '/more-features/currency'
+    | '/more-features/documents'
+    | '/more-features/emergency'
+    | '/more-features/food'
+    | '/more-features/hidden-gems'
+    | '/more-features/hotel'
+    | '/more-features/journal'
+    | '/more-features/medical'
+    | '/more-features/packing'
+    | '/more-features/saved-places'
+    | '/more-features/settings'
+    | '/more-features/translator'
+    | '/more-features/transport'
+    | '/more-features/weather'
+    | '/more-features/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/sitemap.xml'
-  id: '__root__' | '/' | '/dashboard' | '/sitemap.xml'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/sitemap.xml'
+    | '/api/chat'
+    | '/more-features/budget'
+    | '/more-features/currency'
+    | '/more-features/documents'
+    | '/more-features/emergency'
+    | '/more-features/food'
+    | '/more-features/hidden-gems'
+    | '/more-features/hotel'
+    | '/more-features/journal'
+    | '/more-features/medical'
+    | '/more-features/packing'
+    | '/more-features/saved-places'
+    | '/more-features/settings'
+    | '/more-features/translator'
+    | '/more-features/transport'
+    | '/more-features/weather'
+    | '/more-features'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/sitemap.xml'
+    | '/api/chat'
+    | '/more-features/budget'
+    | '/more-features/currency'
+    | '/more-features/documents'
+    | '/more-features/emergency'
+    | '/more-features/food'
+    | '/more-features/hidden-gems'
+    | '/more-features/hotel'
+    | '/more-features/journal'
+    | '/more-features/medical'
+    | '/more-features/packing'
+    | '/more-features/saved-places'
+    | '/more-features/settings'
+    | '/more-features/translator'
+    | '/more-features/transport'
+    | '/more-features/weather'
+    | '/more-features/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiChatRoute: typeof ApiChatRoute
+  MoreFeaturesBudgetRoute: typeof MoreFeaturesBudgetRoute
+  MoreFeaturesCurrencyRoute: typeof MoreFeaturesCurrencyRoute
+  MoreFeaturesDocumentsRoute: typeof MoreFeaturesDocumentsRoute
+  MoreFeaturesEmergencyRoute: typeof MoreFeaturesEmergencyRoute
+  MoreFeaturesFoodRoute: typeof MoreFeaturesFoodRoute
+  MoreFeaturesHiddenGemsRoute: typeof MoreFeaturesHiddenGemsRoute
+  MoreFeaturesHotelRoute: typeof MoreFeaturesHotelRoute
+  MoreFeaturesJournalRoute: typeof MoreFeaturesJournalRoute
+  MoreFeaturesMedicalRoute: typeof MoreFeaturesMedicalRoute
+  MoreFeaturesPackingRoute: typeof MoreFeaturesPackingRoute
+  MoreFeaturesSavedPlacesRoute: typeof MoreFeaturesSavedPlacesRoute
+  MoreFeaturesSettingsRoute: typeof MoreFeaturesSettingsRoute
+  MoreFeaturesTranslatorRoute: typeof MoreFeaturesTranslatorRoute
+  MoreFeaturesTransportRoute: typeof MoreFeaturesTransportRoute
+  MoreFeaturesWeatherRoute: typeof MoreFeaturesWeatherRoute
+  MoreFeaturesIndexRoute: typeof MoreFeaturesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +313,125 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/more-features/': {
+      id: '/more-features/'
+      path: '/more-features'
+      fullPath: '/more-features/'
+      preLoaderRoute: typeof MoreFeaturesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/weather': {
+      id: '/more-features/weather'
+      path: '/more-features/weather'
+      fullPath: '/more-features/weather'
+      preLoaderRoute: typeof MoreFeaturesWeatherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/transport': {
+      id: '/more-features/transport'
+      path: '/more-features/transport'
+      fullPath: '/more-features/transport'
+      preLoaderRoute: typeof MoreFeaturesTransportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/translator': {
+      id: '/more-features/translator'
+      path: '/more-features/translator'
+      fullPath: '/more-features/translator'
+      preLoaderRoute: typeof MoreFeaturesTranslatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/settings': {
+      id: '/more-features/settings'
+      path: '/more-features/settings'
+      fullPath: '/more-features/settings'
+      preLoaderRoute: typeof MoreFeaturesSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/saved-places': {
+      id: '/more-features/saved-places'
+      path: '/more-features/saved-places'
+      fullPath: '/more-features/saved-places'
+      preLoaderRoute: typeof MoreFeaturesSavedPlacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/packing': {
+      id: '/more-features/packing'
+      path: '/more-features/packing'
+      fullPath: '/more-features/packing'
+      preLoaderRoute: typeof MoreFeaturesPackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/medical': {
+      id: '/more-features/medical'
+      path: '/more-features/medical'
+      fullPath: '/more-features/medical'
+      preLoaderRoute: typeof MoreFeaturesMedicalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/journal': {
+      id: '/more-features/journal'
+      path: '/more-features/journal'
+      fullPath: '/more-features/journal'
+      preLoaderRoute: typeof MoreFeaturesJournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/hotel': {
+      id: '/more-features/hotel'
+      path: '/more-features/hotel'
+      fullPath: '/more-features/hotel'
+      preLoaderRoute: typeof MoreFeaturesHotelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/hidden-gems': {
+      id: '/more-features/hidden-gems'
+      path: '/more-features/hidden-gems'
+      fullPath: '/more-features/hidden-gems'
+      preLoaderRoute: typeof MoreFeaturesHiddenGemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/food': {
+      id: '/more-features/food'
+      path: '/more-features/food'
+      fullPath: '/more-features/food'
+      preLoaderRoute: typeof MoreFeaturesFoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/emergency': {
+      id: '/more-features/emergency'
+      path: '/more-features/emergency'
+      fullPath: '/more-features/emergency'
+      preLoaderRoute: typeof MoreFeaturesEmergencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/documents': {
+      id: '/more-features/documents'
+      path: '/more-features/documents'
+      fullPath: '/more-features/documents'
+      preLoaderRoute: typeof MoreFeaturesDocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/currency': {
+      id: '/more-features/currency'
+      path: '/more-features/currency'
+      fullPath: '/more-features/currency'
+      preLoaderRoute: typeof MoreFeaturesCurrencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more-features/budget': {
+      id: '/more-features/budget'
+      path: '/more-features/budget'
+      fullPath: '/more-features/budget'
+      preLoaderRoute: typeof MoreFeaturesBudgetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +439,23 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiChatRoute: ApiChatRoute,
+  MoreFeaturesBudgetRoute: MoreFeaturesBudgetRoute,
+  MoreFeaturesCurrencyRoute: MoreFeaturesCurrencyRoute,
+  MoreFeaturesDocumentsRoute: MoreFeaturesDocumentsRoute,
+  MoreFeaturesEmergencyRoute: MoreFeaturesEmergencyRoute,
+  MoreFeaturesFoodRoute: MoreFeaturesFoodRoute,
+  MoreFeaturesHiddenGemsRoute: MoreFeaturesHiddenGemsRoute,
+  MoreFeaturesHotelRoute: MoreFeaturesHotelRoute,
+  MoreFeaturesJournalRoute: MoreFeaturesJournalRoute,
+  MoreFeaturesMedicalRoute: MoreFeaturesMedicalRoute,
+  MoreFeaturesPackingRoute: MoreFeaturesPackingRoute,
+  MoreFeaturesSavedPlacesRoute: MoreFeaturesSavedPlacesRoute,
+  MoreFeaturesSettingsRoute: MoreFeaturesSettingsRoute,
+  MoreFeaturesTranslatorRoute: MoreFeaturesTranslatorRoute,
+  MoreFeaturesTransportRoute: MoreFeaturesTransportRoute,
+  MoreFeaturesWeatherRoute: MoreFeaturesWeatherRoute,
+  MoreFeaturesIndexRoute: MoreFeaturesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

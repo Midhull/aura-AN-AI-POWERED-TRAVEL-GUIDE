@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aria — The AI Powered Travel Guide</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #F7F5F2;
+      --bg-charcoal: #F4F1ED;
+      --bg-card: #ffffff;
+      --border-card: rgba(0, 0, 0, 0.08);
+      --accent: #4A8DFF;
+      --accent-alt: #3b7ce6;
+      --accent-rgb: 74, 141, 255;
+      --accent-glow: rgba(74, 141, 255, 0.15);
+      --text-white: #111111;
+      --text-gray: #666666;
+      --text-muted: #999999;
+      --font-display: 'Cormorant Garamond', 'DM Serif Display', Georgia, serif;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Base reset & styling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Hide scrollbar for layout */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-card);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Noise overlay */
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 0), radial-gradient(rgba(255,255,255,0.1) 1px, transparent 0);
+      background-size: 80px 80px;
+      background-position: 0 0, 40px 40px;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* Custom layout container */
+    .app-container {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- SECTION 1: NAVBAR --- */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background-color: rgba(247, 245, 242, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-card);
+      display: flex;
+      justify-content: justify;
+      align-items: center;
+      padding: 0 48px;
+      z-index: 100;
+    }
+
+    .navbar-inner {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Logo structure */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-white);
+    }
+
+    .logo-star {
+      width: 22px;
+      height: 22px;
+      fill: var(--accent);
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+    }
+
+    .logo-text-wrapper {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+
+    .logo-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .logo-subtitle {
+      font-size: 8px;
+      color: var(--accent);
+      letter-spacing: 0.22em;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Nav Links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-white);
+      text-decoration: none;
+      position: relative;
+      padding: 6px 0;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background-color: var(--accent);
+      transition: width 0.2s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Nav Right Options */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Drops and Buttons */
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-white);
+      border: 1px solid transparent;
+      padding: 10px 16px;
+    }
+
+    .btn-ghost:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-white);
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+      padding: 10px 24px;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--text-white);
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .btn-filled {
+      background-color: #121826;
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      box-shadow: 0 4px 10px rgba(18, 24, 38, 0.1);
+    }
+
+    .btn-filled:hover {
+      background-color: #1f293d;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(18, 24, 38, 0.18);
+    }
+
+    .lang-dropdown {
+      position: relative;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-white);
+      font-size: 13px;
+      font-weight: 500;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .lang-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 6px;
+      min-width: 100px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      flex-direction: column;
+      z-index: 101;
+    }
+
+    .lang-menu.show {
+      display: flex;
+    }
+
+    .lang-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-gray);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .lang-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-white);
+    }
+
+    /* --- SECTION 2: HERO --- */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+    }
+
+    /* Cinematic layered sunset sky / mountains background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, #F7F5F2 0%, #F4F1ED 40%, #EEEAE4 100%);
+      z-index: 1;
+    }
+
+    /* Sun and Sky Glow */
+    .hero-sky-glow, .hero-sun {
+      display: none;
+    }
+
+    /* Landscape image container replacing mountain SVGs */
+    .hero-landscape {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 38%;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Content wrapper */
+    .hero-content {
+      position: relative;
+      max-width: 520px;
+      margin-left: 6vw;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 68px;
+      line-height: 1.1;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: 20px;
+      color: var(--text-white);
+    }
+
+    .hero-title-highlight {
+      background: linear-gradient(135deg, #4A8DFF 30%, #2b6fe6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 400;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-gray);
+      line-height: 1.6;
+      max-width: 420px;
+      margin-bottom: 36px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-btn {
+      height: 52px;
+      padding: 0 32px;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .hero-btn-filled {
+      background-color: #121826;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(18, 24, 38, 0.1);
+    }
+
+    .hero-btn-filled:hover {
+      background-color: #1f293d;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(18, 24, 38, 0.18);
+      transform: translateY(-1.5px);
+    }
+
+    .hero-btn-outlined {
+      background-color: rgba(0, 0, 0, 0.02);
+      color: #111111;
+      border: 1.5px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .hero-btn-outlined:hover {
+      border-color: #111111;
+      background-color: rgba(0, 0, 0, 0.05);
+      transform: translateY(-1.5px);
+    }
+
+    /* Compass floating widget */
+    .compass-widget {
+      position: absolute;
+      bottom: 80px;
+      right: 60px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      z-index: 10;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .compass-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-white);
+      max-width: 120px;
+      line-height: 1.4;
+    }
+
+    .compass-container {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Glow behind the compass */
+    .compass-circle-glow {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74, 141, 255, 0.3) 0%, transparent 70%);
+      box-shadow: 0 0 30px rgba(74, 141, 255, 0.2);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Rotating outer SVG widget */
+    .compass-hexagon-svg {
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      animation: rotate-compass 20s linear infinite;
+    }
+
+    /* Center star node */
+    .compass-star {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      fill: var(--accent);
+      z-index: 3;
+      filter: drop-shadow(0 0 4px var(--accent));
+      animation: pulse-star 2s ease-in-out infinite alternate;
+    }
+
+    /* --- SECTION 3: TRIP PLANNER BAR --- */
+    .planner-section {
+      width: 100%;
+      background-color: var(--bg-charcoal);
+      border-top: 1px solid var(--border-card);
+      padding: 32px 48px;
+      z-index: 15;
+      position: relative;
+    }
+
+    .planner-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .planner-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-white);
+      letter-spacing: -0.01em;
+    }
+
+    .planner-sparkle {
+      width: 16px;
+      height: 16px;
+      fill: var(--accent);
+      filter: drop-shadow(0 0 4px var(--accent-glow));
+    }
+
+    /* 5-column flex row */
+    .planner-row {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .planner-card {
+      flex: 1;
+      min-width: 200px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .planner-card:hover {
+      border-color: var(--accent);
+      background-color: rgba(19, 22, 31, 0.9);
+      box-shadow: 0 0 15px rgba(79, 255, 212, 0.05);
+    }
+
+    .planner-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .planner-card-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
+    .planner-card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    .planner-card-input-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .planner-input {
+      background: transparent;
+      border: none;
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      width: 90%;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .planner-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .planner-card-action-icon {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .planner-card:hover .planner-card-action-icon {
+      color: var(--accent);
+    }
+
+    /* Custom Dropdown content containers */
+    .planner-dropdown-content {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+      z-index: 120;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .planner-dropdown-content.show {
+      display: flex;
+    }
+
+    .planner-dropdown-option {
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-gray);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .planner-dropdown-option:hover {
+      background-color: rgba(74, 141, 255, 0.08);
+      color: var(--accent);
+    }
+
+    /* Submit Itinerary Button */
+    .planner-btn-card {
+      flex: 0 0 180px;
+      min-width: 160px;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .btn-generate {
+      width: 100%;
+      height: 100%;
+      background-color: #121826;
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(18, 24, 38, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .btn-generate:hover {
+      background-color: #1f293d;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(18, 24, 38, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .btn-generate svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* --- SECTION 4: FEATURES ROW --- */
+    .features-section {
+      width: 100%;
+      background-color: var(--bg-dark);
+      border-top: 1px solid var(--border-card);
+      padding: 44px 48px;
+      z-index: 10;
+      position: relative;
+    }
+
+    .features-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 32px;
+      width: 100%;
+    }
+
+    .feature-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.25s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .feature-icon-container {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: start;
+    }
+
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
+      filter: drop-shadow(0 0 4px var(--accent-glow));
+    }
+
+    .feature-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    .feature-desc {
+      font-size: 12.5px;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+
+    /* --- MODALS & OVERLAYS --- */
+    /* AI Simulation Screen */
+    .ai-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(247, 245, 242, 0.98);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      backdrop-filter: blur(20px);
+    }
+
+    .ai-overlay.show {
+      display: flex;
+    }
+
+    .ai-panel {
+      width: 100%;
+      max-width: 800px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .ai-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+    }
+
+    .ai-loading-step {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ai-loading-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ai-progress-bar {
+      width: 100%;
+      height: 6px;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .ai-progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--accent);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .ai-logs {
+      background-color: rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 10px;
+      padding: 18px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-gray);
+      height: 150px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ai-log-entry {
+      opacity: 0;
+      animation: fade-in-log 0.3s forwards;
+    }
+
+    .ai-log-entry.accent {
+      color: var(--accent);
+    }
+
+    /* Generated Itinerary Section */
+    .itinerary-output {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .itinerary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-card);
+      padding-bottom: 16px;
+    }
+
+    .itinerary-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+    }
+
+    .itinerary-meta {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .itinerary-days {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .itinerary-day-card {
+      background-color: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .itinerary-day-num {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .itinerary-day-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .itinerary-day-activity {
+      font-size: 13px;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+
+    /* Video Modal */
+    .video-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(10, 12, 16, 0.95);
+      z-index: 250;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    .video-overlay.show {
+      display: flex;
+    }
+
+    .video-modal {
+      width: 100%;
+      max-width: 900px;
+      aspect-ratio: 16/9;
+      background-color: #000;
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(19, 22, 31, 0.8);
+      border: 1px solid var(--border-card);
+      color: var(--text-white);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    .close-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .video-simulation {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(45deg, #101524, #050608);
+    }
+
+    .video-simulation-play-btn {
+      width: 72px;
+      height: 72px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 30px var(--accent-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .video-simulation-play-btn:hover {
+      transform: scale(1.1);
+      background-color: var(--text-white);
+    }
+
+    .video-simulation-play-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--bg-dark);
+      margin-left: 4px;
+    }
+
+    .video-simulation-text {
+      margin-top: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--text-white);
+      text-align: center;
+    }
+
+    .video-simulation-playing {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+    /* CSS Animations */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    @keyframes rotate-compass {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse-star {
+      from {
+        filter: drop-shadow(0 0 2px var(--accent));
+        transform: scale(0.95);
+      }
+      to {
+        filter: drop-shadow(0 0 8px var(--accent));
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes sun-pulse {
+      from {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.8;
+      }
+      to {
+        transform: scale(1.08) translate(5px, 2px);
+        opacity: 0.95;
+      }
+    }
+
+    @keyframes fade-in-log {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- RESPONSIVENESS --- */
+    @media (max-width: 1024px) {
+      .planner-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .features-row {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .feature-item {
+        flex: 0 0 calc(50% - 16px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0 24px;
+      }
+      
+      .nav-links {
+        display: none; /* Hide center links on mobile */
+      }
+
+      .lang-dropdown, .btn-ghost {
+        display: none; /* Simplify nav on mobile */
+      }
+
+      .hero {
+        padding: 80px 24px 0 24px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .hero-content {
+        margin-left: 0;
+        max-width: 100%;
+        text-align: center;
+        align-items: center;
+      }
+
+      .hero-title {
+        font-size: 44px;
+      }
+
+      .hero-desc {
+        max-width: 100%;
+      }
+
+      .hero-ctas {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .hero-btn {
+        width: 100%;
+      }
+
+      .compass-widget {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin: 40px auto 0 auto;
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+      }
+
+      .planner-section {
+        padding: 24px;
+      }
+
+      .planner-row {
+        flex-direction: column;
+      }
+
+      .planner-btn-card {
+        flex: 1 0 auto;
+        height: 52px;
+      }
+
+      .features-section {
+        padding: 32px 24px;
+      }
+
+      .feature-item {
+        flex: 0 0 100%;
+        align-items: center;
+        text-align: center;
+      }
+      
+      .feature-icon-container {
+        justify-content: center;
+      }
+
+      .ai-overlay {
+        padding: 16px;
+      }
+
+      .ai-panel {
+        padding: 24px;
+      }
+    }
+
+    /* Custom scrollbar for dropdowns/modals */
+    .planner-dropdown-content::-webkit-scrollbar,
+    .itinerary-days::-webkit-scrollbar,
+    .ai-logs::-webkit-scrollbar {
+      width: 4px;
+    }
+    .planner-dropdown-content::-webkit-scrollbar-thumb,
+    .itinerary-days::-webkit-scrollbar-thumb,
+    .ai-logs::-webkit-scrollbar-thumb {
+      background: var(--border-card);
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="noise-overlay"></div>
+
+  <div class="app-container">
+
+    <!-- SECTION 1: NAVBAR -->
+    <header class="navbar">
+      <div class="navbar-inner">
+        <!-- Logo -->
+        <a href="#" class="logo-container">
+          <svg class="logo-star" viewBox="0 0 24 24">
+            <path d="M12 2L14.7 9.3L22 12L14.7 14.7L12 22L9.3 14.7L2 12L9.3 9.3L12 2Z" />
+          </svg>
+          <div class="logo-text-wrapper">
+            <span class="logo-title">ARIA</span>
+            <span class="logo-subtitle">AI POWERED TRAVEL GUIDE</span>
+          </div>
+        </a>
+
+        <!-- Center Navigation -->
+        <nav>
+          <ul class="nav-links">
+            <li><a href="#destinations" class="nav-link">Destinations</a></li>
+            <li><a href="#planner" class="nav-link">AI Planner</a></li>
+            <li><a href="#experiences" class="nav-link">Experiences</a></li>
+            <li><a href="#pricing" class="nav-link">Pricing</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+          </ul>
+        </nav>
+
+        <!-- Right Options -->
+        <div class="nav-right">
+          <!-- Language Dropdown -->
+          <div class="lang-dropdown">
+            <button class="lang-btn" id="langBtn" aria-label="Language selector">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <span>EN</span>
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-left: 2px;">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+            <div class="lang-menu" id="langMenu">
+              <a href="#" class="lang-item">EN (English)</a>
+              <a href="#" class="lang-item">ES (Español)</a>
+              <a href="#" class="lang-item">FR (Français)</a>
+              <a href="#" class="lang-item">DE (Deutsch)</a>
+            </div>
+          </div>
+
+          <!-- Authentication links -->
+          <a href="#" class="btn btn-ghost" onclick="alert('Sign In clicked. Simulation mode active.')">Sign In</a>
+          <a href="#" class="btn btn-filled">Get Started</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 2: HERO -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-sky-glow"></div>
+      <div class="hero-sun"></div>
+
+      <!-- Mountain Landscape SVGs simulating depth & lighting -->
+      <!-- Scenic Background Landscape at Bottom of Hero -->
+      <div class="hero-landscape">
+        <img
+          src="/aria_welcome_landscape.png"
+          alt="Scenic snowy mountains and calm lake reflections"
+          style="width: 100%; height: 100%; object-fit: cover; object-position: bottom;"
+        />
+        <div style="position: absolute; inset-x: 0; top: 0; height: 120px; background: linear-gradient(to bottom, #EEEAE4 0%, rgba(238, 234, 228, 0.6) 60%, transparent 100%);"></div>
+      </div>
+
+      <!-- Hero Content Block -->
+      <div class="hero-content">
+        <span class="hero-eyebrow">AI POWERED TRAVEL GUIDE</span>
+        <h1 class="hero-title">Explore the World, Guided by <span class="hero-title-highlight">Intelligence.</span></h1>
+        <p class="hero-desc">
+          ARIA is your intelligent travel companion. From personalized itineraries to hidden gems, budget predictions to real-time recommendations — we turn every journey into something extraordinary.
+        </p>
+        <div class="hero-ctas">
+          <a href="#planner" class="hero-btn hero-btn-filled">Start Planning &rarr;</a>
+          <button class="hero-btn hero-btn-outlined" id="watchDemoBtn">
+            <span>▶ Watch Demo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Widget (Bottom Right) -->
+      <div class="compass-widget">
+        <div class="compass-text">Where would you like to go?</div>
+        
+        <div class="compass-container">
+          <div class="compass-circle-glow"></div>
+          
+          <!-- Hexagonal Ring -->
+          <svg class="compass-hexagon-svg" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="cyan-glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4A8DFF" />
+                <stop offset="100%" stop-color="#3b7ce6" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#cyan-glow-grad)" stroke-width="2.5" stroke-dasharray="16 10" />
+            <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(74, 141, 255, 0.15)" stroke-width="1.5" />
+          </svg>
+
+          <!-- 4-pointed star compass needle -->
+          <svg class="compass-star" viewBox="0 0 24 24">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TRIP PLANNER BAR -->
+    <section class="planner-section" id="planner">
+      <div class="planner-title-row">
+        <h2 class="planner-title">Plan your perfect trip with AI</h2>
+        <svg class="planner-sparkle" viewBox="0 0 24 24">
+          <path d="M12 2L14.7 9.3L22 12L14.7 14.7L12 22L9.3 14.7L2 12L9.3 9.3L12 2Z" />
+        </svg>
+      </div>
+
+      <div class="planner-row">
+        
+        <!-- Input 1: Destination -->
+        <div class="planner-card" id="destinationCard">
+          <div class="planner-card-header">
+            <svg class="planner-card-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            <span class="planner-card-label">Where to?</span>
+          </div>
+          <div class="planner-card-input-wrapper">
+            <input type="text" class="planner-input" id="destInput" placeholder="Search destinations" readonly>
+            <svg class="planner-card-action-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+          
+          <div class="planner-dropdown-content" id="destDropdown">
+            <div class="planner-dropdown-option" data-val="Bali, Indonesia">Bali, Indonesia</div>
+            <div class="planner-dropdown-option" data-val="Kyoto, Japan">Kyoto, Japan</div>
+            <div class="planner-dropdown-option" data-val="Reykjavik, Iceland">Reykjavik, Iceland</div>
+            <div class="planner-dropdown-option" data-val="Santorini, Greece">Santorini, Greece</div>
+            <div class="planner-dropdown-option" data-val="Swiss Alps, Switzerland">Swiss Alps, Switzerland</div>
+          </div>
+        </div>
+
+        <!-- Input 2: Dates -->
+        <div class="planner-card" id="dateCard">
+          <div class="planner-card-header">
+            <svg class="planner-card-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            <span class="planner-card-label">Travel Dates</span>
+          </div>
+          <div class="planner-card-input-wrapper">
+            <input type="text" class="planner-input" id="dateInput" placeholder="Add dates" readonly>
+            <svg class="planner-card-action-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12h10.5m-10.5 3h10.5m-10.5-6h10.5" />
+            </svg>
+          </div>
+
+          <div class="planner-dropdown-content" id="dateDropdown">
+            <div class="planner-dropdown-option" data-val="Next Weekend">Next Weekend</div>
+            <div class="planner-dropdown-option" data-val="Next Month (Aug 2026)">Next Month (Aug 2026)</div>
+            <div class="planner-dropdown-option" data-val="Autumn Holiday (Oct 2026)">Autumn Holiday (Oct 2026)</div>
+            <div class="planner-dropdown-option" data-val="Winter Getaway (Dec 2026)">Winter Getaway (Dec 2026)</div>
+          </div>
+        </div>
+
+        <!-- Input 3: Style -->
+        <div class="planner-card" id="styleCard">
+          <div class="planner-card-header">
+            <svg class="planner-card-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m-15 0a2.247 2.247 0 00-.75-.128H3.75A1.5 1.5 0 002.25 11.25v5.25a3 3 0 003 3h13.5a3 3 0 003-3v-5.25a1.5 1.5 0 00-1.5-1.5h-.75c-.263 0-.515.045-.75.128m-15 0A2.25 2.25 0 005.25 12h13.5A2.25 2.25 0 0021 9.878" />
+            </svg>
+            <span class="planner-card-label">Travel Style</span>
+          </div>
+          <div class="planner-card-input-wrapper">
+            <input type="text" class="planner-input" id="styleInput" placeholder="Adventure, Relaxation..." readonly>
+            <svg class="planner-card-action-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+
+          <div class="planner-dropdown-content" id="styleDropdown">
+            <div class="planner-dropdown-option" data-val="Adventure & Explore">Adventure & Explore</div>
+            <div class="planner-dropdown-option" data-val="Relaxation & Spa">Relaxation & Spa</div>
+            <div class="planner-dropdown-option" data-val="Cultural Immersion">Cultural Immersion</div>
+            <div class="planner-dropdown-option" data-val="Culinary & Dining">Culinary & Dining</div>
+            <div class="planner-dropdown-option" data-val="Family-friendly">Family-friendly</div>
+          </div>
+        </div>
+
+        <!-- Input 4: Budget -->
+        <div class="planner-card" id="budgetCard">
+          <div class="planner-card-header">
+            <svg class="planner-card-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+            </svg>
+            <span class="planner-card-label">Budget</span>
+          </div>
+          <div class="planner-card-input-wrapper">
+            <input type="text" class="planner-input" id="budgetInput" placeholder="Select budget range" readonly>
+            <svg class="planner-card-action-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+
+          <div class="planner-dropdown-content" id="budgetDropdown">
+            <div class="planner-dropdown-option" data-val="Economy ($)">Economy ($)</div>
+            <div class="planner-dropdown-option" data-val="Standard ($$)">Standard ($$)</div>
+            <div class="planner-dropdown-option" data-val="Premium ($$$)">Premium ($$$)</div>
+            <div class="planner-dropdown-option" data-val="Ultra Luxury ($$$$)">Ultra Luxury ($$$$)</div>
+          </div>
+        </div>
+
+        <!-- Submit Card -->
+        <div class="planner-btn-card">
+          <button class="btn-generate" id="generateItineraryBtn">
+            <span>Generate Itinerary</span>
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2L14.7 9.3L22 12L14.7 14.7L12 22L9.3 14.7L2 12L9.3 9.3L12 2Z" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: FEATURES ROW -->
+    <section class="features-section">
+      <div class="features-row">
+        <!-- Feature 1 -->
+        <div class="feature-item">
+          <div class="feature-icon-container">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21l-1.81-5.096L2.1 14.1 7.19 13.2l.9-5.1 1.81 5.1 5.096.9-5.096 1.804zM18.75 5.25h.008v.008h-.008V5.25zM18.75 9h.008v.008h-.008V9zm-3.75-3.75h.008v.008H15V5.25z" />
+            </svg>
+          </div>
+          <h3 class="feature-title">✦ AI Itinerary Planner</h3>
+          <p class="feature-desc">Personalized day-by-day plans in seconds</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-item">
+          <div class="feature-icon-container">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </div>
+          <h3 class="feature-title">💎 Hidden Gems</h3>
+          <p class="feature-desc">Discover offbeat places only locals know</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-item">
+          <div class="feature-icon-container">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+            </svg>
+          </div>
+          <h3 class="feature-title">📈 Smart Budgeting</h3>
+          <p class="feature-desc">AI predicts costs and helps you save more</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-item">
+          <div class="feature-icon-container">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="feature-title">🕐 Real-time Updates</h3>
+          <p class="feature-desc">Weather, events, and travel updates in real-time</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-item">
+          <div class="feature-icon-container">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h3 class="feature-title">👤 Your Travel Companion</h3>
+          <p class="feature-desc">24/7 AI support before, during & after your trip</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- --- MODALS & INTERACTIVE OVERLAYS --- -->
+  <!-- AI Generation Overlay Simulation -->
+  <div class="ai-overlay" id="aiOverlay">
+    <div class="ai-panel">
+      <button class="close-btn" id="closeAiOverlayBtn" aria-label="Close">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Loading / Generation Phase -->
+      <div id="aiLoadingContainer">
+        <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 400; margin-bottom: 20px;">
+          Designing Your <span style="color: var(--accent)">Custom Journey...</span>
+        </h2>
+        
+        <div class="ai-loading-step">
+          <div class="ai-loading-header">
+            <span id="aiStepLabel">Initializing Aria AI...</span>
+            <span id="aiPercentLabel">0%</span>
+          </div>
+          <div class="ai-progress-bar">
+            <div class="ai-progress-fill" id="aiProgressFill"></div>
+          </div>
+        </div>
+
+        <div class="ai-logs" id="aiLogs">
+          <!-- Log lines printed via JS -->
+        </div>
+      </div>
+
+      <!-- Result Phase -->
+      <div class="itinerary-output" id="itineraryOutput">
+        <div class="itinerary-header">
+          <div>
+            <h2 class="itinerary-title" id="outTitle">Kyoto Exploration</h2>
+            <div class="itinerary-meta" id="outSub">ADVETURE · ECONOMY BUDGET · AUG 2026</div>
+          </div>
+          <button class="btn btn-filled" style="padding: 8px 18px; font-size: 12.5px;" onclick="alert('Itinerary Saved to Profile!')">Save Itinerary</button>
+        </div>
+
+        <div class="itinerary-days" id="itineraryDays">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watch Demo Video Modal -->
+  <div class="video-overlay" id="videoOverlay">
+    <div class="video-modal">
+      <button class="close-btn" id="closeVideoOverlayBtn" aria-label="Close">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Animated travel video simulator -->
+      <div class="video-simulation" id="videoSimulation">
+        <div class="video-simulation-play-btn" id="videoPlayBtn">
+          <svg class="video-simulation-play-icon" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+        <div class="video-simulation-text">Play Cinematic Travel Showcase (Simulated)</div>
+        
+        <div class="video-simulation-playing" id="videoPlayingScreen">
+          <!-- Visual effects mimicking a video -->
+          <div style="position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80') center/cover; animation: zoom-in-video 10s infinite linear;"></div>
+          <div style="position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); padding: 6px 12px; font-size: 12px; border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ff4a4a; display: inline-block; animation: blink 1s infinite;"></span>
+            CINEMATIC PREVIEW
+          </div>
+          <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center; background: rgba(10,12,16,0.85); padding: 12px 24px; border-radius: 10px; border: 1px solid var(--border-card); font-family: var(--font-display); font-size: 20px; width: 80%;">
+            Explore Japan's Hidden Cherry Blossom Groves with Aria Pro
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- DROPDOWN CONTROL ---
+    const langBtn = document.getElementById('langBtn');
+    const langMenu = document.getElementById('langMenu');
+
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langMenu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', () => {
+      langMenu.classList.remove('show');
+      closeAllPlannerDropdowns();
+    });
+
+    // --- PLANNER INTERACTIVE DROPDOWNS ---
+    const plannerCards = {
+      destination: { card: document.getElementById('destinationCard'), input: document.getElementById('destInput'), dropdown: document.getElementById('destDropdown') },
+      date: { card: document.getElementById('dateCard'), input: document.getElementById('dateInput'), dropdown: document.getElementById('dateDropdown') },
+      style: { card: document.getElementById('styleCard'), input: document.getElementById('styleInput'), dropdown: document.getElementById('styleDropdown') },
+      budget: { card: document.getElementById('budgetCard'), input: document.getElementById('budgetInput'), dropdown: document.getElementById('budgetDropdown') }
+    };
+
+    function closeAllPlannerDropdowns(exceptKey = '') {
+      Object.keys(plannerCards).forEach(key => {
+        if (key !== exceptKey) {
+          plannerCards[key].dropdown.classList.remove('show');
+        }
+      });
+    }
+
+    Object.keys(plannerCards).forEach(key => {
+      const { card, dropdown, input } = plannerCards[key];
+      
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isShow = dropdown.classList.contains('show');
+        closeAllPlannerDropdowns(isShow ? '' : key);
+        dropdown.classList.toggle('show', !isShow);
+      });
+
+      // Dropdown option selections
+      dropdown.querySelectorAll('.planner-dropdown-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const val = option.getAttribute('data-val');
+          input.value = val;
+          input.style.color = '#FFFFFF';
+          dropdown.classList.remove('show');
+        });
+      });
+    });
+
+    // --- DEMO MODAL ---
+    const watchDemoBtn = document.getElementById('watchDemoBtn');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const closeVideoOverlayBtn = document.getElementById('closeVideoOverlayBtn');
+    const videoPlayBtn = document.getElementById('videoPlayBtn');
+    const videoPlayingScreen = document.getElementById('videoPlayingScreen');
+
+    watchDemoBtn.addEventListener('click', () => {
+      videoOverlay.classList.add('show');
+    });
+
+    closeVideoOverlayBtn.addEventListener('click', () => {
+      videoOverlay.classList.remove('show');
+      videoPlayingScreen.style.display = 'none';
+    });
+
+    videoPlayBtn.addEventListener('click', () => {
+      videoPlayingScreen.style.display = 'block';
+    });
+
+    // --- ITINERARY GENERATOR AI SIMULATION ---
+    const generateItineraryBtn = document.getElementById('generateItineraryBtn');
+    const aiOverlay = document.getElementById('aiOverlay');
+    const closeAiOverlayBtn = document.getElementById('closeAiOverlayBtn');
+    const aiLoadingContainer = document.getElementById('aiLoadingContainer');
+    const itineraryOutput = document.getElementById('itineraryOutput');
+    const aiProgressFill = document.getElementById('aiProgressFill');
+    const aiStepLabel = document.getElementById('aiStepLabel');
+    const aiPercentLabel = document.getElementById('aiPercentLabel');
+    const aiLogs = document.getElementById('aiLogs');
+
+    // Outputs
+    const outTitle = document.getElementById('outTitle');
+    const outSub = document.getElementById('outSub');
+    const itineraryDays = document.getElementById('itineraryDays');
+
+    // Sample database of generated itineraries
+    const ITINERARY_DATABASE = {
+      "Bali, Indonesia": {
+        title: "Bali Tropical Escapade",
+        days: [
+          { num: "Day 1", title: "Cultural Heart of Ubud", desc: "Arrive in Denpasar and transfer to Ubud. Walk the Campuhan Ridge at golden hour, then dine at a forest canopy restaurant showcasing traditional Balinese spices." },
+          { num: "Day 2", title: "Sacred Water Temples & Rice Terraces", desc: "Early morning visit to Tegallalang rice terraces to witness sunrise. Head to Pura Tirta Empul for water purification. Afternoon hike around Mount Batur foothills." },
+          { num: "Day 3", title: "Coastal Sunset at Uluwatu Cliff", desc: "Travel to Uluwatu Temple perched high above the Indian Ocean. Enjoy the traditional Kecak Fire Dance at sunset, followed by a private seafood beach barbecue." }
+        ]
+      },
+      "Kyoto, Japan": {
+        title: "Kyoto Heritage Tour",
+        days: [
+          { num: "Day 1", title: "Bamboo Groves & Hidden Temples", desc: "Walk through Arashiyama bamboo path early morning before crowds arrive. Discover Gio-ji, a quiet moss temple. Indulge in traditional Yudofu (tofu hotpot) lunch." },
+          { num: "Day 2", title: "Fushimi Inari Torii Paths", desc: "Hike the 10,000 torii gates of Fushimi Inari-taisha at golden hour. Head to Gion district in the evening in search of authentic geisha sightings and tea ceremonies." },
+          { num: "Day 3", title: "Golden Pavilion & Zen Gardens", desc: "Tour Kinkaku-ji (Golden Pavilion) and explore the dry landscape rock garden of Ryoan-ji. Spend the afternoon tea-tasting near Uji's centuries-old tea shops." }
+        ]
+      },
+      "Reykjavik, Iceland": {
+        title: "Iceland Fire & Ice Journey",
+        days: [
+          { num: "Day 1", title: "Golden Circle Hotsprings & Cascades", desc: "Discover Thingvellir National Park, watch the Strokkur geysir erupt, and marvel at Gullfoss. Wind down in the geothermal waters of Hvammsvik." },
+          { num: "Day 2", title: "Black Sand Beaches of Vik", desc: "Travel along the south coast. Stop at Seljalandsfoss waterfall (walk behind it!) and Reynisfjara's basalt column caves. Spot puffins nesting on dramatic sea cliffs." },
+          { num: "Day 3", title: "Glacier Hike & Ice Cave Expedition", desc: "Embark on a guided crampon trek on Vatnajökull glacier. Enter a crystal blue ice cave and witness the ancient frozen layers before returning to Reykjavik." }
+        ]
+      },
+      "Santorini, Greece": {
+        title: "Santorini Aegean Odyssey",
+        days: [
+          { num: "Day 1", title: "Oia Caldera Path Walk", desc: "Check into a luxury cave suite. Hike the scenic caldera path from Fira to Oia. Find a quiet clifftop lookout to witness the world-famous golden hour sunset." },
+          { num: "Day 2", title: "Volcanic Sailing & Hot Springs", desc: "Board a private catamaran cruise. Sail past Red Beach, swim in Nea Kameni volcanic hot springs, and enjoy freshly grilled Mediterranean seafood on board." },
+          { num: "Day 3", title: "Megalochori & Ancient Vines", desc: "Wander through Megalochori's whitewashed alleyways. Visit a cliffside winery to taste Assyrtiko wine, learning about the unique basket-woven vines of the island." }
+        ]
+      },
+      "Swiss Alps, Switzerland": {
+        title: "Swiss Alpine Heights",
+        days: [
+          { num: "Day 1", title: "Zermatt Glacier Views", desc: "Take the Gornergrat cog railway up for jaw-dropping Matterhorn panorama. Walk around Riffelsee to photograph the peak reflection in the alpine lake water." },
+          { num: "Day 2", title: "Lauterbrunnen Valley of 72 Waterfalls", desc: "Travel to Lauterbrunnen. Walk through the valley floor and take the cable car to Murren car-free village. Witness Staubbach Falls cascading 300 meters down." },
+          { num: "Day 3", title: "High Altitude Peak Walk", desc: "Visit Grindelwald First. Walk the thrilling Cliff Walk suspended over rock faces. Hike to Lake Bachalpsee for lunch surrounded by wildflowers and snowy summits." }
+        ]
+      }
+    };
+
+    const GENERATION_LOG_TEMPLATES = [
+      "Connecting to Aria Core Engine...",
+      "Analyzing user travel profile & constraints...",
+      "Sifting through local secrets database...",
+      "Filtering accommodations by optimal user rating...",
+      "Simulating weather forecasts and optimal travel routes...",
+      "Constructing custom day-by-day travel itinerary...",
+      "Finalizing trip details, estimated budgets, and secrets..."
+    ];
+
+    generateItineraryBtn.addEventListener('click', () => {
+      // Validate inputs
+      const dest = plannerCards.destination.input.value || "Bali, Indonesia";
+      const date = plannerCards.date.input.value || "Next Month (Aug 2026)";
+      const style = plannerCards.style.input.value || "Adventure & Explore";
+      const budget = plannerCards.budget.input.value || "Standard ($$)";
+
+      // Show overlay
+      aiOverlay.classList.add('show');
+      aiLoadingContainer.style.display = 'block';
+      itineraryOutput.style.display = 'none';
+
+      // Clear logs
+      aiLogs.innerHTML = '';
+      aiProgressFill.style.width = '0%';
+      aiPercentLabel.innerText = '0%';
+
+      let progress = 0;
+      let logIndex = 0;
+
+      const logTimer = setInterval(() => {
+        if (logIndex < GENERATION_LOG_TEMPLATES.length) {
+          addLogLine(GENERATION_LOG_TEMPLATES[logIndex]);
+          logIndex++;
+        }
+      }, 500);
+
+      const progressTimer = setInterval(() => {
+        progress += Math.floor(Math.random() * 8) + 4;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressTimer);
+          clearInterval(logTimer);
+          setTimeout(() => {
+            showResult(dest, date, style, budget);
+          }, 600);
+        }
+        aiProgressFill.style.width = `${progress}%`;
+        aiPercentLabel.innerText = `${progress}%`;
+
+        // Update step labels dynamically based on progress
+        if (progress < 25) {
+          aiStepLabel.innerText = "Analyzing travel profile...";
+        } else if (progress < 60) {
+          aiStepLabel.innerText = "Sifting local guide secrets...";
+        } else if (progress < 90) {
+          aiStepLabel.innerText = "Generating optimized path...";
+        } else {
+          aiStepLabel.innerText = "Finalizing itinerary...";
+        }
+      }, 150);
+    });
+
+    closeAiOverlayBtn.addEventListener('click', () => {
+      aiOverlay.classList.remove('show');
+    });
+
+    function addLogLine(text, isAccent = false) {
+      const p = document.createElement('p');
+      p.className = 'ai-log-entry';
+      if (isAccent) p.className += ' accent';
+      p.innerText = `> ${text}`;
+      aiLogs.appendChild(p);
+      aiLogs.scrollTop = aiLogs.scrollHeight;
+    }
+
+    function showResult(destination, date, style, budget) {
+      aiLoadingContainer.style.display = 'none';
+      itineraryOutput.style.display = 'flex';
+
+      // Get database values or fallback
+      const data = ITINERARY_DATABASE[destination] || ITINERARY_DATABASE["Bali, Indonesia"];
+
+      outTitle.innerText = data.title;
+      outSub.innerText = `${style.toUpperCase()} · ${budget.toUpperCase()} · ${date.toUpperCase()}`;
+
+      itineraryDays.innerHTML = '';
+      data.days.forEach(day => {
+        const dCard = document.createElement('div');
+        dCard.className = 'itinerary-day-card';
+        dCard.innerHTML = `
+          <div class="itinerary-day-num">${day.num}</div>
+          <div class="itinerary-day-title">${day.title}</div>
+          <div class="itinerary-day-activity">${day.desc}</div>
+        `;
+        itineraryDays.appendChild(dCard);
+      });
+    }
+
+    // CSS Keyframe Injection for simulation zoom
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+      @keyframes zoom-in-video {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.15); }
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  </script>
+
+</body>
+</html>
